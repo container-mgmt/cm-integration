@@ -1,4 +1,4 @@
-#!/user/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # manageiq_prs.py - Manage pending ManageIQ PR for integration with the automated docker build
 #
