@@ -25,6 +25,7 @@ Usage:
   ./manageiq_prs.py remove <repo>/<pr>
   ./manageiq_prs.py check [<repo>/<pr>]
   ./manageiq_prs.py remove_merged
+  ./manageiq_prs.py printlinks
   ./manageiq_prs.py -h | --help
 
 Options:
@@ -40,6 +41,7 @@ import os
 import requests
 import sys
 from docopt import docopt
+from tabulate import tabulate
 API_URL = "https://api.github.com/repos/ManageIQ/{repo}/pulls/{id}"
 PRS_JSON = "pending-prs-unstable.json"
 
@@ -161,6 +163,15 @@ def main():
     elif arguments["remove_merged"]:
         # Remove merged PRs from the json file
         raise SystemExit(remove_merged(current))
+    elif arguments["printlinks"]:
+        # Print links and titles for all PRs in the file
+        table = []
+        for repo, prs in current.items():
+            for pr in prs:
+                info = get_pr(repo, pr)
+                table.append([info['html_url'], '@'+info['user']['login'],
+                              info['title']])
+        print(tabulate(table, tablefmt="simple"))
     elif arguments["remove"] or arguments["add"]:
         repo, pr = arguments['<repo>/<pr>'].split('/', 1)
         info = get_pr(repo, pr)

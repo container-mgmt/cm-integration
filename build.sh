@@ -32,6 +32,8 @@ set -u # disallow undefined variables again
 
 # Remove merged PRs from the list to avoid conflicts
 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 python2 manageiq_prs.py remove_merged
+# Get list of PRs used for this build
+LINKS="$(LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 python2 manageiq_prs.py printlinks)"
 
 if [ ! -d "${BASEDIR}" ]; then
     mkdir "${BASEDIR}"
@@ -136,8 +138,12 @@ popd
 pushd miq-app-frontend
 # Not setting GHORG here because we don't patch manageiq-ui-service
 sed "s/FROM manageiq\/manageiq-pods:backend-latest/FROM containermgmt\/manageiq-pods:backend-${BUILD_TIME}/g" < Dockerfile.orig > Dockerfile
+echo "$LINKS" > docker-assets/patches.txt
+echo "COPY docker-assets/patches.txt /patches.txt" >> Dockerfile
+git diff docker-assets/patches.txt
 git diff Dockerfile
 git add Dockerfile
+git add docker-assets/patches.txt
 popd
 
 git commit -F- <<EOF
