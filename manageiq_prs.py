@@ -138,7 +138,7 @@ def remove_merged(current):
                                              user=info['user']['login'],
                                              title=info['title'])
             print(status_line)
-        current[repo] = list(set(prs) - to_remove)
+        current[repo] = list(filter(lambda item: item not in to_remove, prs))
 
     with open(PRS_JSON, 'w') as f:
         json.dump(current, f, indent=4)
