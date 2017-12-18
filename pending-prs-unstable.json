@@ -4,9 +4,7 @@
         76,
         177
     ],
-    "manageiq-providers-kubernetes": [
-        192
-    ],
+    "manageiq-providers-kubernetes": [],
     "manageiq-providers-openshift": [],
     "manageiq-ui-classic": [
         2714,
