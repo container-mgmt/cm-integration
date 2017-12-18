@@ -2,7 +2,8 @@
     "manageiq": [],
     "manageiq-api": [
         76,
-        177
+        177,
+        149
     ],
     "manageiq-providers-kubernetes": [
         192
