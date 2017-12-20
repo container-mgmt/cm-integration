@@ -1,13 +1,11 @@
 {
     "manageiq": [],
     "manageiq-api": [
-        76,
         177
     ],
     "manageiq-providers-kubernetes": [],
     "manageiq-providers-openshift": [],
     "manageiq-ui-classic": [
-        2714,
-        3091
+        2714
     ]
 }
