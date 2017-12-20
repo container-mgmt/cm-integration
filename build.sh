@@ -64,7 +64,7 @@ for repo in ${repos}; do
     # when we rolled the build.
     MASTER_HEAD=$(git rev-parse --short HEAD)
     echo "Master is: ${MASTER_HEAD}"
-    COMMITSTR="${COMMITSTR}"$'\n'"${repo} master HEAD was ${MASTER_HEAD}"
+    COMMITSTR="${COMMITSTR}"$'\n'"${repo} master HEAD was https://github.com/ManageIQ/${repo}/commit/${MASTER_HEAD}"
 
     # tag this HEAD to mark it was the HEAD for the current BUILD_TIME
     git tag "head-${BUILD_TIME}"
@@ -139,6 +139,7 @@ pushd miq-app-frontend
 # Not setting GHORG here because we don't patch manageiq-ui-service
 sed "s/FROM manageiq\/manageiq-pods:backend-latest/FROM containermgmt\/manageiq-pods:backend-${BUILD_TIME}/g" < Dockerfile.orig > Dockerfile
 echo "$LINKS" > docker-assets/patches.txt
+echo -e "\nBase refs:\n${COMMITSTR}" >> docker-assets/patches.txt
 echo "COPY docker-assets/patches.txt /patches.txt" >> Dockerfile
 git diff docker-assets/patches.txt
 git diff Dockerfile
