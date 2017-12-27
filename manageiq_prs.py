@@ -21,11 +21,11 @@
 manageiq_prs: Manage ManageIQ pending PRs for the docker build
 
 Usage:
-  ./manageiq_prs.py add <repo>/<pr>
-  ./manageiq_prs.py remove <repo>/<pr>
-  ./manageiq_prs.py check [<repo>/<pr>]
-  ./manageiq_prs.py remove_merged
-  ./manageiq_prs.py printlinks
+  ./manageiq_prs.py add <repo>/<pr> [--stable]
+  ./manageiq_prs.py remove <repo>/<pr> [--stable]
+  ./manageiq_prs.py check [<repo>/<pr>] [--stable]
+  ./manageiq_prs.py remove_merged [--stable]
+  ./manageiq_prs.py printlinks [--stable]
   ./manageiq_prs.py -h | --help
 
 Options:
@@ -153,7 +153,12 @@ def remove_merged(current):
 
 
 def main():
+    global PRS_JSON
     arguments = docopt(__doc__)
+    if arguments['--stable']:
+        PRS_JSON = "pending-prs-stable.json"
+    else:
+        PRS_JSON = "pending-prs-unstable.json"
     with open(PRS_JSON, 'r') as f:
         current = json.load(f, object_pairs_hook=collections.OrderedDict)
 
@@ -217,6 +222,7 @@ def main():
         msg = "✔️  {repo} PR #{pr} was {verb} 👍".format(repo=repo, pr=pr,
                                                         verb=verb)
         print(color("OK: ", "green") + msg)
+
 
 if __name__ == "__main__":
     main()
