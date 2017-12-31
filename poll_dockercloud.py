@@ -21,7 +21,7 @@
 poll_dockercloud - Poll dockercloud to get build status
 
 Usage:
-  ./poll_dockercloud.py <build_id>
+  ./poll_dockercloud.py <repo> <build_id>
 
 Options:
   -h --help     Show this screen.
@@ -47,21 +47,22 @@ DOCKERCLOUD_PASS = os.getenv("DOCKERCLOUD_PASS", None)
 AUTH = (DOCKERCLOUD_USER, DOCKERCLOUD_PASS)
 
 BASE_URL = "https://cloud.docker.com"
-REPO_URL = BASE_URL+"/api/repo/v1/repository/containermgmt/manageiq-pods/"
-BUILD_URL = BASE_URL+"/api/build/v1/containermgmt/source/?image=containermgmt/manageiq-pods"
+REPO_URL_TEMPLATE = BASE_URL+"/api/repo/v1/repository/containermgmt/{0}/"
+BUILD_URL = BASE_URL+"/api/build/v1/containermgmt/source/?image=containermgmt/{0}"
 
 
-def poll_both_builds(build_id):
+def poll_both_builds(repo, build_id):
     """ Poll both backend and frontend builds """
     state = False
+    repo_url = REPO_URL_TEMPLATE.format(repo)
     print("Waiting for build to start")
     while state != "Building":
         sleep(10)
-        response = requests.get(BUILD_URL, auth=AUTH)
+        response = requests.get(BUILD_URL.format(repo), auth=AUTH)
         response.raise_for_status()
         response_json = response.json()["objects"][0]
         state = response_json["state"]
-        if state == "Success" and build_tag_exists(build_id):
+        if state == "Success" and build_tag_exists(repo_url, build_id):
             raise SystemExit(0)
         print(".", end="")
         sys.stdout.flush()
@@ -78,10 +79,10 @@ def poll_both_builds(build_id):
     print("\nWaiting for backend build...")
     if poll_build_status(backend, build_id):
         print("\nBackend build complete! Waiting for frontend build...")
-        poll_build_status(frontend, build_id, True)
+        poll_build_status(frontend, build_id, True, repo_url)
 
 
-def poll_build_status(url, build_id, wait_for_tag=False):
+def poll_build_status(url, build_id, wait_for_tag=False, repo_url=None):
     """ Wait until a build is complete, and exit if it fails """
     state = "not started"
     while state in ["Building", "not started"]:
@@ -92,7 +93,7 @@ def poll_build_status(url, build_id, wait_for_tag=False):
         sys.stdout.flush()
         state = response.json()["state"]
         if wait_for_tag:
-            if state == "Success" and not build_tag_exists(build_id):
+            if state == "Success" and not build_tag_exists(repo_url, build_id):
                 state = "not started"
     if state == "Success":
         return True
@@ -102,16 +103,15 @@ def poll_build_status(url, build_id, wait_for_tag=False):
         raise SystemExit(1)
 
 
-def build_tag_exists(build_id):
+def build_tag_exists(repo_url, build_id):
     """ Check if the expected tag exists for the provided build ID """
-    response = requests.get(REPO_URL, auth=AUTH)
+    response = requests.get(repo_url, auth=AUTH)
     response.raise_for_status()
     if response.json()["state"] == "Success":
         # Build successful?
         # maybe it's the previous build, verify we have the latest tag
         for tag in response.json()["tags"]:
-            frontend_build = "frontend-{0}".format(build_id)
-            if frontend_build in tag:
+            if build_id in tag and "frontend" in tag:
                 print("\nTag exists, build successful!")
                 return True
     return False
@@ -121,7 +121,7 @@ def main():
     arguments = docopt(__doc__)
     if not DOCKERCLOUD_USER or not DOCKERCLOUD_PASS:
         raise SystemExit("Authentication required")
-    poll_both_builds(arguments["<build_id>"])
+    poll_both_builds(arguments["<repo>"], arguments["<build_id>"])
 
 
 if __name__ == "__main__":
