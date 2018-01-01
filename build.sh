@@ -202,6 +202,9 @@ if [ ! -z "${LOCAL_REGISTRY}" ]; then
     echo
     echo "Push complete, deleting local copy"
     echo
-    docker rmi containermgmt/${IMAGE_REPO}
+    # Find all relevant image IDs and use xargs and sort -u to remove duplicates from the list
+    # since an image ID might appear more than once (with different tags).
+    IMAGE_IDS=$(docker images --no-trunc | grep "${IMAGE_REPO} " | awk '{print $3}' | xargs -n1 | sort -u | xargs)
+    docker rmi -f ${IMAGE_IDS}
 fi
 echo "Done!"
