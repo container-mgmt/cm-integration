@@ -196,7 +196,7 @@ if [ ! -z "${LOCAL_REGISTRY}" ]; then
     echo "Pushing to local registry..."
     echo
     docker tag containermgmt/${IMAGE_REPO} "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}"
-    docker tag containermgmt/${IMAGE_REPO}:frontend-latest "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
+    docker tag containermgmt/${IMAGE_REPO}:latest "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
     docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}"
     docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
     echo
