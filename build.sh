@@ -90,7 +90,7 @@ for repo in ${repos}; do
     #weird bash hack
     string_escaped_repo=\"${repo}\"
 
-    git checkout -b ${BRANCH}
+    git checkout -b "${BRANCH}"
     if [ "${repo}" == "${CORE_REPO}" ]; then
         # Patch the Gemfile to load plugins from our forks instead of upstream
         envsubst < ../../manageiq-use-forked.patch.in > manageiq-use-forked.patch
@@ -105,7 +105,7 @@ for repo in ${repos}; do
 
     echo -e "\n\n\n** PUSHING REPO ${repo}**\n----------------------------------------------\n"
     git tag "${TAG}"
-    git push --set-upstream --tags "${GITHUB_ORG}" ${BRANCH} --force
+    git push --set-upstream --tags "${GITHUB_ORG}" "${BRANCH}" --force
     echo -e "\n** FINISHED REPO ${repo} **\n---------------------------------------------- \n"
     popd
 done
@@ -192,8 +192,16 @@ fi
 if [ ! -z "${LOCAL_REGISTRY}" ]; then
     echo "Pulling image..."
     docker pull containermgmt/${IMAGE_REPO}
+    echo
     echo "Pushing to local registry..."
+    echo
     docker tag containermgmt/${IMAGE_REPO} "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}"
+    docker tag containermgmt/${IMAGE_REPO}:frontend-latest "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
     docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}"
+    docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
+    echo
+    echo "Push complete, deleting local copy"
+    echo
+    docker rmi containermgmt/${IMAGE_REPO}
 fi
 echo "Done!"
