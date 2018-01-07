@@ -12,6 +12,10 @@ BUILD_TIME=$(date +%Y%m%d-%H%M)
 BRANCH=image-${BUILD_TYPE}
 PENDING_PRS=${PWD}/pending-prs-${BUILD_TYPE}.json
 BUILD_ID=${BUILD_ID:-}
+LOCAL_REGISTRY=${LOCAL_REGISTRY:-}
+LOCAL_REGISTRY_PASS=${LOCAL_REGISTRY_PASS:-}
+BUILD_HOST=${BUILD_HOST:-}
+BUILD_HOST_USER=${BUILD_HOST_USER:-}
 BASEDIR=${PWD}/manageiq-${BUILD_TYPE}
 CORE_REPO=manageiq
 GITHUB_ORG=container-mgmt
@@ -163,6 +167,7 @@ git diff Dockerfile | cat
 git add Dockerfile
 git add docker-assets/patches.txt
 popd
+popd
 
 git commit -F- <<EOF
 Automated ${BUILD_TYPE} image build ${BUILD_TIME}
@@ -179,32 +184,11 @@ EOF
 echo "pushing backend tag"
 git tag "backend${PODS_TAG_SUFFIX}"
 git push --force --tags ${GITHUB_ORG} ${PODS_BRANCH}
-sleep 15  # HACK: push the backend tag first in hopes DockerHub will build it before building the frontend tag
 git tag "frontend${PODS_TAG_SUFFIX}"
 echo "pushing frontend tag"
 git push --force --tags ${GITHUB_ORG} ${PODS_BRANCH}
-echo "Pushed manageiq-pods, 🐋dockerhub/dockercloud should do the rest."
-cd "${SCRIPT_PATH}"
-if [ ! -z "${DOCKERCLOUD_PASS}" ]; then
-    LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 python2 poll_dockercloud.py "${IMAGE_REPO}" "${BUILD_TIME}"
+if [ ! -z "${BUILD_HOST}" ]; then
+    rsync -Pahvz images "${BUILD_HOST_USER}@${BUILD_HOST}:${IMAGE_REPO}/"
+    rsync -Pahvz "${SCRIPT_PATH}/build_image.sh" "${BUILD_HOST_USER}@${BUILD_HOST}:${IMAGE_REPO}/"
+    ssh "${BUILD_HOST_USER}@${BUILD_HOST}" "cd ${IMAGE_REPO} && bash ./build_image.sh \"${IMAGE_REPO}\" \"${PODS_TAG_SUFFIX}\" \"${LOCAL_REGISTRY}\" \"${LOCAL_REGISTRY_PASS}\" \"${DOCKERCLOUD_USER}\" \"${DOCKERCLOUD_PASS}\""
 fi
-
-if [ ! -z "${LOCAL_REGISTRY}" ]; then
-    echo "Pulling image..."
-    docker pull containermgmt/${IMAGE_REPO}
-    echo
-    echo "Pushing to local registry..."
-    echo
-    docker tag containermgmt/${IMAGE_REPO} "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}"
-    docker tag containermgmt/${IMAGE_REPO}:latest "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
-    docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}"
-    docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
-    echo
-    echo "Push complete, deleting local copy"
-    echo
-    # Find all relevant image IDs and use xargs and sort -u to remove duplicates from the list
-    # since an image ID might appear more than once (with different tags).
-    IMAGE_IDS=$(docker images --no-trunc | grep "${IMAGE_REPO} " | awk '{print $3}' | xargs -n1 | sort -u | xargs)
-    docker rmi -f ${IMAGE_IDS}
-fi
-echo "Done!"
