@@ -6,6 +6,7 @@
     "manageiq-providers-kubernetes": [],
     "manageiq-providers-openshift": [],
     "manageiq-ui-classic": [
-        2714
+        2714,
+        3183
     ]
 }
