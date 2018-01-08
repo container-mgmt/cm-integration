@@ -39,7 +39,7 @@ docker push "docker.io/containermgmt/${IMAGE_REPO}:frontend-latest"
 echo
 echo "======== Push to docker.io complete ========"
 echo
-docker rmi $(docker images --no-trunc | grep "${IMAGE_REPO} " | awk '{print $3}' | xargs -n1 | sort -u | xargs)
+docker rmi -f $(docker images --no-trunc | grep "${IMAGE_REPO} " | awk '{print $3}' | xargs -n1 | sort -u | xargs) || true
 
 echo
 echo "======== DONE ========"
