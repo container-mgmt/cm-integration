@@ -25,17 +25,21 @@ echo "======== Build complete ========"
 echo
 docker tag "containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}" "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}"
 docker tag "containermgmt/${IMAGE_REPO}:frontend-latest" "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
+docker tag "containermgmt/${IMAGE_REPO}:latest" "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:latest"
 docker login -u unused -p "${LOCAL_REGISTRY_PASS}" "${LOCAL_REGISTRY}"
 docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}"
 docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
+docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:latest"
 echo
 echo "======== Push to local complete ========"
 echo
 docker login -u "${DOCKERCLOUD_USER}" -p "${DOCKERCLOUD_PASS}"
 docker tag "containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}" "docker.io/containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}"
 docker tag "containermgmt/${IMAGE_REPO}:frontend-latest" "docker.io/containermgmt/${IMAGE_REPO}:frontend-latest"
+docker tag "containermgmt/${IMAGE_REPO}:latest" "docker.io/containermgmt/${IMAGE_REPO}:latest"
 docker push "docker.io/containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}"
 docker push "docker.io/containermgmt/${IMAGE_REPO}:frontend-latest"
+docker push "docker.io/containermgmt/${IMAGE_REPO}:latest"
 echo
 echo "======== Push to docker.io complete ========"
 echo
