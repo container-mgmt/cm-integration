@@ -19,7 +19,7 @@ echo "======== Starting build ========"
 echo
 
 docker build -t "containermgmt/${IMAGE_REPO}:backend${PODS_TAG_SUFFIX}" -t "containermgmt/${IMAGE_REPO}:backend-latest" images/miq-app
-docker build -t "containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}" -t "containermgmt/${IMAGE_REPO}:frontend-latest" images/miq-app-frontend
+docker build -t "containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}" -t "containermgmt/${IMAGE_REPO}:frontend-latest" -t "containermgmt/${IMAGE_REPO}:latest" images/miq-app-frontend
 echo
 echo "======== Build complete ========"
 echo
