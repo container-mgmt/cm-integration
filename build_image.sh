@@ -33,7 +33,7 @@ docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:latest"
 echo
 echo "======== Push to local complete ========"
 echo
-docker login -u "${DOCKERCLOUD_USER}" -p "${DOCKERCLOUD_PASS}"
+docker login -u "${DOCKERCLOUD_USER}" -p "${DOCKERCLOUD_PASS}" docker.io
 docker tag "containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}" "docker.io/containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}"
 docker tag "containermgmt/${IMAGE_REPO}:frontend-latest" "docker.io/containermgmt/${IMAGE_REPO}:frontend-latest"
 docker tag "containermgmt/${IMAGE_REPO}:latest" "docker.io/containermgmt/${IMAGE_REPO}:latest"
