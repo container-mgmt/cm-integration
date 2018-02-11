@@ -9,8 +9,6 @@ set -o pipefail # prevent errors in a pipeline from being masked
 
 IMAGE_REPO=${1:-}
 PODS_TAG_SUFFIX=${2:-}
-LOCAL_REGISTRY=${3:-}
-LOCAL_REGISTRY_PASS=${4:-}
 DOCKERCLOUD_USER=${5:-}
 DOCKERCLOUD_PASS=${6:-}
 
@@ -22,16 +20,6 @@ docker build -t "containermgmt/${IMAGE_REPO}:backend${PODS_TAG_SUFFIX}" -t "cont
 docker build -t "containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}" -t "containermgmt/${IMAGE_REPO}:frontend-latest" -t "containermgmt/${IMAGE_REPO}:latest" images/miq-app-frontend
 echo
 echo "======== Build complete ========"
-echo
-docker tag "containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}" "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}"
-docker tag "containermgmt/${IMAGE_REPO}:frontend-latest" "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
-docker tag "containermgmt/${IMAGE_REPO}:latest" "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:latest"
-docker login -u unused -p "${LOCAL_REGISTRY_PASS}" "${LOCAL_REGISTRY}"
-docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}"
-docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:frontend-latest"
-docker push "${LOCAL_REGISTRY}/containermgmt/${IMAGE_REPO}:latest"
-echo
-echo "======== Push to local complete ========"
 echo
 docker login -u "${DOCKERCLOUD_USER}" -p "${DOCKERCLOUD_PASS}" docker.io
 docker tag "containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}" "docker.io/containermgmt/${IMAGE_REPO}:frontend${PODS_TAG_SUFFIX}"
